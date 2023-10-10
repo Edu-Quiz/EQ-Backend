@@ -1,26 +1,23 @@
-import express from "express";
 import cors from "cors";
-import session from "express-session";
 import dotenv from "dotenv";
+import express from "express";
 import db from "./config/Database.js";
-import SequelizeStore from "connect-session-sequelize";
+import session from "express-session";
 import UserRoute from "./routes/UserRoute.js";
-import GroupRoute from "./routes/GroupRoute.js";
 import AuthRoute from "./routes/AuthRoute.js";
+import GroupRoute from "./routes/GroupRoute.js";
+import StudentRoute from "./routes/StudentRoute.js"
+import SequelizeStore from "connect-session-sequelize";
 import ProfessorRoute from "./routes/ProfessorRoute.js";
 dotenv.config({path: `env.${process.env.NODE_ENV}`});
 
 const app = express();
-
 const sessionStore = SequelizeStore(session.Store);
-
-const store = new sessionStore({
-    db: db
-});
+const store = new sessionStore({ db: db });
 
 //Create All DB Resources
 // (async()=>{
-//     await db.sync();
+//     await db.sync({force: true});
 // })();
 
 app.use(session({
@@ -42,6 +39,7 @@ app.use("/api/v1", UserRoute);
 app.use("/api/v1", GroupRoute);
 app.use("/api/v1", AuthRoute);
 app.use("/api/v1", ProfessorRoute);
+app.use("/api/v1", StudentRoute);
 
 // store.sync();
 
