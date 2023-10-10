@@ -1,32 +1,55 @@
-import { Professor, User, Group } from "../models/Relations.js";
+import { Student, Professor, User, Group } from "../models/Relations.js";
 import { Op } from "sequelize";
 
-export const getGroups = async (req, res) =>{
+export const getGroups = async (req, res) => {
     try {
         let response;
-        if(req.role === "admin"){
+        if (req.role === "admin") {
             response = await Group.findAll({
-                attributes:['uuid','group_name','professor_id'],
-                include:[{
+                attributes: ['id', 'uuid', 'group_name', 'professor_id'],
+                include: [
+                {
                     model: Professor,
-                    attributes:['first_name','last_name']
-                }]
+                    attributes: ['first_name', 'last_name'],
+                },
+                ],
             });
-        }else{
-            console.log(req)
+        
+            for (const group of response) {
+                const studentCount = await group.countStudents();
+                group.setDataValue('studentCount', studentCount);
+            }
+        } else if (req.role === "Profesor") {
+            const professor = await Professor.findOne({
+                where: {
+                    user_id: req.userId,
+                },
+            });
+  
+            if (!professor) {
+                return res.status(404).json({ msg: 'Professor not found.' });
+            }
+            const professorId = professor.id;
             response = await Group.findAll({
-                attributes:['uuid','group_name','professor_id'],
-                include:[{
+                attributes: ['id', 'uuid', 'group_name', 'professor_id'],
+                include: [
+                    {
                     model: Professor,
-                    attributes:['first_name','last_name']
-                }]
+                    attributes: ['first_name', 'last_name'],
+                    },
+                ],
+                where: {
+                    professor_id: professorId,
+                },
             });
-        }
-        res.status(200).json(response);
+      } else {
+        response = [];
+      }
+      res.status(200).json(response);
     } catch (error) {
-        res.status(500).json({msg: error.message});
+      res.status(500).json({ msg: error.message });
     }
-}
+  };
 
 export const getGroupById = async(req, res) =>{
     try {
@@ -64,18 +87,33 @@ export const getGroupById = async(req, res) =>{
     }
 }
 
-export const createGroup = async(req, res) =>{
-    const {group_name, professor_id} = req.body;
+export const createGroup = async (req, res) => {
+    const { group_name, professor_id, student_ids } = req.body;
     try {
-        await Group.create({
-            group_name: group_name,
-            professor_id: professor_id,
+      const group = await Group.create({
+        group_name: group_name,
+        professor_id: professor_id,
+      });
+  
+      if (Array.isArray(student_ids) && student_ids.length > 0) {
+        const students = await Student.findAll({
+          where: {
+            id: student_ids,
+          },
         });
-        res.status(201).json({msg: "Grupo creado exitosamente"});
+  
+        if (students.length === 0) {
+          return res.status(404).json({ msg: 'No students found.' });
+        }
+  
+        await group.addStudents(students);
+      }
+  
+      res.status(201).json({ msg: 'Grupo creado exitosamente' });
     } catch (error) {
-        res.status(500).json({msg: error.message});
+      res.status(500).json({ msg: error.message });
     }
-}
+  };
 
 export const updateGroup = async(req, res) =>{
     try {
@@ -114,18 +152,10 @@ export const deleteGroup = async(req, res) =>{
             }
         });
         if(!group) return res.status(404).json({msg: "Datos no encontrados"});
-        const {name, price} = req.body;
         if(req.role === "admin"){
             await Group.destroy({
                 where:{
                     id: group.id
-                }
-            });
-        }else{
-            if(req.userId !== group.userId) return res.status(403).json({msg: "Acceso Denegado"});
-            await Group.destroy({
-                where:{
-                    [Op.and]:[{id: group.id}, {userId: req.userId}]
                 }
             });
         }

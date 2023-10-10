@@ -6,7 +6,8 @@ import Group from "../models/GroupModel.js";
 User.hasOne(Professor, { foreignKey: 'user_id' });
 User.hasOne(Student, { foreignKey: 'user_id' });
 Professor.hasMany(Group, { foreignKey: 'professor_id' });
-Student.belongsToMany(Group, { through: 'Group_Students', foreignKey: 'student_id' });
+Student.belongsToMany(Group, { through: 'Group_Student', foreignKey: 'student_id' });
+Group.belongsToMany(Student, { through: 'Group_Student', foreignKey: 'group_id' });
 Group.belongsTo(Professor, { foreignKey: 'professor_id' });
 
 export {
