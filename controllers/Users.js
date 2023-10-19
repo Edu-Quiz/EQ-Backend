@@ -89,7 +89,6 @@ export const updateUser = async(req, res) =>{
     });
     if(!user) return res.status(404).json({msg: "Usuario no encontrado"});
     const { first_name, last_name, email, password, confPassword, role } = req.body;
-    console.log(req)
     let hashPassword;
     if(password === "" || password === undefined ){
         hashPassword = user.password
