@@ -1,7 +1,7 @@
 import { DataTypes } from "sequelize";
 import db from "../config/Database.js";
 
-const Group = db.define('Groups',{
+const Assignment = db.define('Assignments',{
     uuid:{
         type: DataTypes.STRING,
         defaultValue: DataTypes.UUIDV4,
@@ -10,16 +10,15 @@ const Group = db.define('Groups',{
             notEmpty: true
         }
     },
-    group_name:{
+    title:{
         type: DataTypes.STRING,
         allowNull: false,
         validate:{
-            notEmpty: true,
-            len: [3, 100]
+            notEmpty: true
         }
     },
-    image:{
-        type: DataTypes.BLOB('long'),
+    category:{
+        type: DataTypes.STRING,
         allowNull: false,
         validate:{
             notEmpty: true
@@ -29,4 +28,4 @@ const Group = db.define('Groups',{
     freezeTableName: true
 });
 
-export default Group;
+export default Assignment;

@@ -11,4 +11,9 @@ const db = new Sequelize(process.env.POSTGRES_DB_URL, {
     },
 });
 
+// const db = new Sequelize("auth_db","root","", {
+//     dialect: "mysql",
+//     host: "localhost"
+// });
+
 export default db;

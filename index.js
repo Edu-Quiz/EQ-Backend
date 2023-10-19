@@ -9,6 +9,7 @@ import GroupRoute from "./routes/GroupRoute.js";
 import StudentRoute from "./routes/StudentRoute.js"
 import SequelizeStore from "connect-session-sequelize";
 import ProfessorRoute from "./routes/ProfessorRoute.js";
+import AssignmentRoute from "./routes/AssignmentRoute.js";
 dotenv.config({path: `env.${process.env.NODE_ENV}`});
 
 const app = express();
@@ -40,6 +41,7 @@ app.use("/api/v1", GroupRoute);
 app.use("/api/v1", AuthRoute);
 app.use("/api/v1", ProfessorRoute);
 app.use("/api/v1", StudentRoute);
+app.use("/api/v1", AssignmentRoute);
 
 // store.sync();
 
